@@ -1,0 +1,105 @@
+#include <opencv2/opencv.hpp>
+#include <Windows.h>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+using namespace cv;
+
+int ready = 0;
+
+int main() {
+    // Inicjalizacja
+    int screen_width = GetSystemMetrics(SM_CXSCREEN);
+    int screen_height = GetSystemMetrics(SM_CYSCREEN);
+    HDC hwindowDC = GetDC(NULL);
+    HDC hwindowCompatibleDC = CreateCompatibleDC(hwindowDC);
+    HBITMAP hbwindow = CreateCompatibleBitmap(hwindowDC, screen_width, screen_height);
+    BITMAPINFOHEADER bi = { sizeof(BITMAPINFOHEADER), screen_width, -screen_height, 1, 32, BI_RGB, 0, 0, 0, 0, 0 };
+
+    // Wspó³rzêdne do rysowania i sprawdzania kolorów
+    vector<Point> coordinates = {
+        {1010, 533}, {1008, 546}, {1004, 560}, {997, 572}, {987, 582}, {975, 589},
+        {962, 592}, {949, 591}, {936, 587}, {925, 578}, {913, 561}, {909, 547},
+        {909, 533}, {913, 519}, {920, 507}, {930, 497}, {942, 490}, {956, 487},
+        {963, 488}, {975, 490}, {987, 497}, {1001, 513}, {1006, 526}
+    };
+
+    int cx = screen_width / 2;
+    int cy = screen_height / 2;
+
+    // Wspó³rzêdne do sprawdzania kolorów
+    vector<Point> coords2 = {
+        {cx, cy - 3},
+        {cx + 1, cy - 3},
+        {cx + 2, cy - 3},
+        {cx + 3, cy - 3},
+        {cx - 1, cy - 3},
+        {cx - 2, cy - 3},
+    };
+
+    namedWindow("Zrzut ekranu", WINDOW_NORMAL);
+
+    while (true) {
+        // Przechwytywanie ekranu do macierzy OpenCV
+        Mat screenshot = Mat::zeros(screen_height, screen_width, CV_8UC4);
+        SelectObject(hwindowCompatibleDC, hbwindow);
+        StretchBlt(hwindowCompatibleDC, 0, 0, screen_width, screen_height, hwindowDC, 0, 0, screen_width, screen_height, SRCCOPY);
+        GetDIBits(hwindowCompatibleDC, hbwindow, 0, screen_height, screenshot.data, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+
+        // Konwersja koloru z BGRA na BGR
+        cvtColor(screenshot, screenshot, COLOR_BGRA2BGR);
+
+        // Pobieranie kolorów pikseli z coords2 i przypisanie ich do zmiennych c0, c1, c2, c3, c4, c5
+        Vec3b c0 = screenshot.at<Vec3b>(coords2[0]);
+        Vec3b c1 = screenshot.at<Vec3b>(coords2[1]);
+        Vec3b c2 = screenshot.at<Vec3b>(coords2[2]);
+        Vec3b c3 = screenshot.at<Vec3b>(coords2[3]);
+        Vec3b c4 = screenshot.at<Vec3b>(coords2[4]);
+        Vec3b c5 = screenshot.at<Vec3b>(coords2[5]);
+
+        // Wypisanie wspó³rzêdnych i kolorów
+        cout << "c0: [" << static_cast<int>(c0[2]) << ", " << static_cast<int>(c0[1]) << ", " << static_cast<int>(c0[0]) << "]" << endl;
+        cout << "c1: [" << static_cast<int>(c1[2]) << ", " << static_cast<int>(c1[1]) << ", " << static_cast<int>(c1[0]) << "]" << endl;
+        cout << "c2: [" << static_cast<int>(c2[2]) << ", " << static_cast<int>(c2[1]) << ", " << static_cast<int>(c2[0]) << "]" << endl;
+        cout << "c3: [" << static_cast<int>(c3[2]) << ", " << static_cast<int>(c3[1]) << ", " << static_cast<int>(c3[0]) << "]" << endl;
+        cout << "c4: [" << static_cast<int>(c4[2]) << ", " << static_cast<int>(c4[1]) << ", " << static_cast<int>(c4[0]) << "]" << endl;
+        cout << "c5: [" << static_cast<int>(c5[2]) << ", " << static_cast<int>(c5[1]) << ", " << static_cast<int>(c5[0]) << "]" << endl;
+        cout << "ready: " << ready << endl;
+        // Warunek sprawdzaj¹cy kolory pikseli
+        if (c0[1] > 150 && c0[0] < 70 && c0[2] < 45 && c1[1] > 150 && c2[1] > 150 && c3[1] > 150 && c4[1] > 150 && c5[1] > 150 && ready == 0) {
+            cout << "Mamy to kurwa!!!!" << endl;
+            ready = 1;
+        }
+
+        // Wyœwietlanie napisu "Ready" i wartoœci zmiennej ready w prawym górnym rogu
+        stringstream ss;
+        ss << "Ready: " << ready;
+        putText(screenshot, ss.str(), Point(screen_width - 250, 30), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 255, 255), 2);
+
+
+        // Rysowanie punktów na obrazie
+        for (const auto& coord : coordinates) {
+            circle(screenshot, coord, 1, Scalar(0, 0, 255), -1);  // Czerwone kropki
+        }
+
+        for (const auto& coord : coords2) {
+            circle(screenshot, coord, 1, Scalar(0, 0, 0), -1);  // Zielone kropki
+        }
+
+        // Wyœwietlanie obrazu
+        imshow("Zrzut ekranu", screenshot);
+
+        // Oczekiwanie na naciœniêcie klawisza 'q' w celu wyjœcia
+        if (waitKey(1) == 'q') {
+            break;
+        }
+    }
+
+    // Zwalnianie zasobów
+    DeleteObject(hbwindow);
+    DeleteDC(hwindowCompatibleDC);
+    ReleaseDC(NULL, hwindowDC);
+
+    return 0;
+}

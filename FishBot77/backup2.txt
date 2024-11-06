@@ -1,0 +1,223 @@
+#include <opencv2/opencv.hpp>
+#include <Windows.h>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+using namespace cv;
+
+int ready = 0;
+int count = 0; 
+int pointer = 0;
+Point tmpcoord;
+Vec3b tempcolor;
+
+void pressKey(WORD key) {
+    // Naciœniêcie klawisza
+    keybd_event(key, 0, 0, 0);
+
+    // Krótka przerwa, aby symulowaæ rzeczywiste naciœniêcie klawisza
+    //Sleep(10);  // Odczekaj 50 milisekund
+
+    // Zwolnienie klawisza
+    keybd_event(key, 0, KEYEVENTF_KEYUP, 0);
+}
+
+int main2() {
+    Sleep(2000);
+    // Naciœniêcie klawisza
+    keybd_event(0x45, 0, 0, 0);
+
+    // Krótka przerwa, aby symulowaæ rzeczywiste naciœniêcie klawisza
+    //Sleep(10);  // Odczekaj 50 milisekund
+
+    // Zwolnienie klawisza
+    keybd_event(0x45, 0, KEYEVENTF_KEYUP, 0);
+}
+
+
+
+int main() {
+    // Inicjalizacja
+    int screen_width = GetSystemMetrics(SM_CXSCREEN);
+    int screen_height = GetSystemMetrics(SM_CYSCREEN);
+    HDC hwindowDC = GetDC(NULL);
+    HDC hwindowCompatibleDC = CreateCompatibleDC(hwindowDC);
+    HBITMAP hbwindow = CreateCompatibleBitmap(hwindowDC, screen_width, screen_height);
+    BITMAPINFOHEADER bi = { sizeof(BITMAPINFOHEADER), screen_width, -screen_height, 1, 32, BI_RGB, 0, 0, 0, 0, 0 };
+
+    // Wspó³rzêdne do rysowania i sprawdzania kolorów
+    vector<Point> coordinates = {
+        {1010, 533}, {1008, 546}, {1004, 560}, {997, 572}, {987, 582}, {975, 589},
+        {962, 592}, {949, 591}, {936, 587}, {925, 578}, {913, 561}, {909, 547},
+        {909, 533}, {913, 519}, {920, 507}, {930, 497}, {942, 490}, {956, 487},
+        {963, 488}, {975, 490}, {987, 497}, {1001, 513}, {1006, 526}
+    };
+
+    int cx = screen_width / 2;
+    int cy = screen_height / 2;
+
+    // Wspó³rzêdne do sprawdzania kolorów
+    vector<Point> coords2 = {
+        {cx, cy + 5},
+        {cx + 1, cy + 5},
+        {cx + 2, cy + 5},
+        {cx + 3, cy + 5},
+        {cx - 1, cy + 5},
+        {cx - 2, cy + 5},
+    };
+
+    Vec3b c0,c1,c2,c3,c4,c5;
+
+    namedWindow("Zrzut ekranu", WINDOW_NORMAL);
+    int count = 0;
+    while (true) {
+        // Przechwytywanie ekranu do macierzy OpenCV
+        Mat screenshot = Mat::zeros(screen_height, screen_width, CV_8UC4);
+        SelectObject(hwindowCompatibleDC, hbwindow);
+        StretchBlt(hwindowCompatibleDC, 0, 0, screen_width, screen_height, hwindowDC, 0, 0, screen_width, screen_height, SRCCOPY);
+        GetDIBits(hwindowCompatibleDC, hbwindow, 0, screen_height, screenshot.data, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+
+        // Konwersja koloru z BGRA na BGR
+        cvtColor(screenshot, screenshot, COLOR_BGRA2BGR);
+
+        // Pobieranie kolorów pikseli z coords2 i przypisanie ich do zmiennych c0, c1, c2, c3, c4, c5
+        if (ready == 0){
+            c0 = screenshot.at<Vec3b>(coords2[0]);
+            c1 = screenshot.at<Vec3b>(coords2[1]);
+            c2 = screenshot.at<Vec3b>(coords2[2]);
+            c3 = screenshot.at<Vec3b>(coords2[3]);
+            c4 = screenshot.at<Vec3b>(coords2[4]);
+            c5 = screenshot.at<Vec3b>(coords2[5]);
+
+        }
+
+        // Warunek sprawdzaj¹cy kolory pikseli z coords2
+        if (c0[1] > 150 && c0[0] < 70 && c0[2] < 75   && c1[1] > 150 && c2[1] > 150 && c3[1] > 150 && c4[1] > 150 && c5[1] > 150 && ready == 0) {
+            cout << "Mamy to kurwa!!!!" << endl;
+            ready = 1;
+        }
+
+        // Szukanie pierwszego piksela spe³niaj¹cego warunki R > 200, G > 100, B < 50
+        Point found_coord;
+        bool found = false;
+
+        if(ready == 1){
+            for (const auto& coord : coordinates) {
+                Vec3b color = screenshot.at<Vec3b>(coord);
+                if (color[2] > 200 && color[1] > 80 && color[0] < 50) {  // R > 200, G > 100, B < 50
+                    found_coord = coord;
+                    //cout << found_coord << endl;
+                    found = true;
+                    if (pointer == 0) {
+                        if (tmpcoord != coord) {
+                            pointer = 1;
+                            tmpcoord = coord;
+                            tempcolor = screenshot.at<Vec3b>(Point(tmpcoord.x, tmpcoord.y));
+                            cout << "Wykonanie programu" << endl;
+                        }
+                    }
+                    break;
+                }
+                else {
+                    found = false;
+                    //ready = 0;
+                    //tmpcoord = { 0,0 };
+                }
+            }
+        }
+
+        // Jeœli znaleziono taki piksel, zaznacz go na obrazie
+    //    if (found) {
+    //        circle(screenshot, found_coord, 5, Scalar(0, 255, 0), 2);  // Zaznaczenie na zielono
+            putText(screenshot, "Found", Point(found_coord.x + 10, found_coord.y - 10), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0), 1);
+    //    }
+
+        Vec3b foundcolor = screenshot.at<Vec3b>(Point(tmpcoord.x, tmpcoord.y));
+
+        //if ((int)foundcolor[2] > 150 && (int)foundcolor[1] > 150 && (int)foundcolor[0] > 150 && pointer > 0) { // R > 200, G > 200, B > 200
+        if(foundcolor != tempcolor && pointer > 0 ){
+            cout << "KURWWWAAAA" << endl;
+            //putText(screenshot, "Przed Naciœniêciem", Point(cx, cy - 350), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
+            pressKey(0x45);
+            //putText(screenshot, "Po Naciœniêciem", Point(cx, cy - 325), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
+            pointer = 0;
+            //Sleep(1);  // Odczekaj 50 milisekund
+            count++;
+        }
+
+        if (count == 3) {
+            ready = 0;
+            pointer = 0;
+            found = false;
+            tmpcoord = { 0,0 };
+        }
+
+        //cout << "Coord: " << tmpcoord << " Color: [" << (int)foundcolor[2] << ", " << (int)foundcolor[1] << ", " << (int)foundcolor[0] << "]" << pointer << endl;
+        putText(screenshot, "Pointer: " + to_string(pointer), Point(cx, cy - 450), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
+        putText(screenshot, "TMP Coord: " + to_string(tmpcoord.x) + " , " + to_string(tmpcoord.y), Point(cx, cy - 425), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
+        putText(screenshot, "TMP Color: " + to_string(foundcolor[0]) + " , " + to_string(foundcolor[1]) + " , " + to_string(foundcolor[2]), Point(cx, cy - 400), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(foundcolor[0], foundcolor[1], foundcolor[2]), 1);
+        putText(screenshot, "Found: " + to_string(found), Point(cx, cy - 375), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
+
+        // Wyœwietlanie wartoœci c0, c1, c2, c3, c4, c5 i "Ready" w prawym górnym rogu
+        int base_line = 20;
+        int text_spacing = 25;  // Zmniejszenie odstêpu, aby wiêcej tekstu siê zmieœci³o
+        //putText(screenshot, "c0: [" + to_string(c0[2]) + ", " + to_string(c0[1]) + ", " + to_string(c0[0]) + "]", Point(screen_width - 600, base_line), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(c0[0], c0[1], c0[2]), 1);
+        //putText(screenshot, "c1: [" + to_string(c1[2]) + ", " + to_string(c1[1]) + ", " + to_string(c1[0]) + "]", Point(screen_width - 600, base_line + text_spacing), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(c1[0], c1[1], c1[2]), 1);
+        //putText(screenshot, "c2: [" + to_string(c2[2]) + ", " + to_string(c2[1]) + ", " + to_string(c2[0]) + "]", Point(screen_width - 600, base_line + text_spacing * 2), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(c2[0], c2[1], c2[2]), 1);
+        //putText(screenshot, "c3: [" + to_string(c3[2]) + ", " + to_string(c3[1]) + ", " + to_string(c3[0]) + "]", Point(screen_width - 600, base_line + text_spacing * 3), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(c3[0], c3[1], c3[2]), 1);
+        //putText(screenshot, "c4: [" + to_string(c4[2]) + ", " + to_string(c4[1]) + ", " + to_string(c4[0]) + "]", Point(screen_width - 600, base_line + text_spacing * 4), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(c4[0], c4[1], c4[2]), 1);
+        //putText(screenshot, "c5: [" + to_string(c5[2]) + ", " + to_string(c5[1]) + ", " + to_string(c5[0]) + "]", Point(screen_width - 600, base_line + text_spacing * 5), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(c5[0], c5[1], c5[2]), 1);
+
+        stringstream ss_ready;
+        ss_ready << "Ready: " << ready;
+        putText(screenshot, ss_ready.str(), Point(screen_width - 600, base_line + text_spacing * 6), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
+
+        // Pobieranie i wyœwietlanie kolorów pikseli z coordinates
+        int index = 0;
+        /*for (const auto& coord : coordinates) {
+            Vec3b color = screenshot.at<Vec3b>(coord);
+            stringstream ss;
+            ss << "coord[" << index << "]: [" << static_cast<int>(color[2]) << ", " << static_cast<int>(color[1]) << ", " << static_cast<int>(color[0]) << "]";
+            putText(screenshot, ss.str(), Point(screen_width - 600, base_line + text_spacing * (7 + index)), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(color[0], color[1], color[2]), 1);
+
+            // Numeracja punktów po zewnêtrznej stronie kropek
+            //int offset_x = (coord.x > cx) ? 10 : -25;
+            //int offset_y = (coord.y > cy) ? 10 : -10;
+            //putText(screenshot, to_string(index), Point(coord.x + offset_x, coord.y + offset_y), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 0, 0), 1);
+
+            index++;
+        }*/
+
+        // Rysowanie punktów na obrazie
+        for (const auto& coord : coordinates) {
+            circle(screenshot, coord, 1, Scalar(0, 0, 255), -1);  // Czerwone kropki
+        }
+
+        for (const auto& coord : coords2) {
+            circle(screenshot, coord, 1, Scalar(0, 0, 0), -1);  // Zielone kropki
+        }
+
+        // Wyœwietlanie obrazu
+        imshow("Zrzut ekranu", screenshot);
+
+        // Oczekiwanie na naciœniêcie klawisza 'q' w celu wyjœcia
+        if (waitKey(1) == 'q') {
+            break;
+        }
+
+        // Resetowanie zmiennej ready przy naciœniêciu 's'
+        if (waitKey(1) == 's') {
+            ready = 0;
+            pointer = 0;
+            found = false;
+        }
+    }
+
+    // Zwalnianie zasobów
+    DeleteObject(hbwindow);
+    DeleteDC(hwindowCompatibleDC);
+    ReleaseDC(NULL, hwindowDC);
+
+    return 0;
+}
