@@ -17,7 +17,7 @@ int main() {
     HBITMAP hbwindow = CreateCompatibleBitmap(hwindowDC, screen_width, screen_height);
     BITMAPINFOHEADER bi = { sizeof(BITMAPINFOHEADER), screen_width, -screen_height, 1, 32, BI_RGB, 0, 0, 0, 0, 0 };
 
-    // Wsp蟪rz阣ne do rysowania i sprawdzania kolor體
+    // Wsp贸鲁rz锚dne do rysowania i sprawdzania kolor贸w
     vector<Point> coordinates = {
         {1010, 533}, {1008, 546}, {1004, 560}, {997, 572}, {987, 582}, {975, 589},
         {962, 592}, {949, 591}, {936, 587}, {925, 578}, {913, 561}, {909, 547},
@@ -28,7 +28,7 @@ int main() {
     int cx = screen_width / 2;
     int cy = screen_height / 2;
 
-    // Wsp蟪rz阣ne do sprawdzania kolor體
+    // Wsp贸鲁rz锚dne do sprawdzania kolor贸w
     vector<Point> coords2 = {
         {cx, cy - 3},
         {cx + 1, cy - 3},
@@ -50,7 +50,7 @@ int main() {
         // Konwersja koloru z BGRA na BGR
         cvtColor(screenshot, screenshot, COLOR_BGRA2BGR);
 
-        // Pobieranie kolor體 pikseli z coords2 i przypisanie ich do zmiennych c0, c1, c2, c3, c4, c5
+        // Pobieranie kolor贸w pikseli z coords2 i przypisanie ich do zmiennych c0, c1, c2, c3, c4, c5
         Vec3b c0 = screenshot.at<Vec3b>(coords2[0]);
         Vec3b c1 = screenshot.at<Vec3b>(coords2[1]);
         Vec3b c2 = screenshot.at<Vec3b>(coords2[2]);
@@ -58,7 +58,7 @@ int main() {
         Vec3b c4 = screenshot.at<Vec3b>(coords2[4]);
         Vec3b c5 = screenshot.at<Vec3b>(coords2[5]);
 
-        // Wypisanie wsp蟪rz阣nych i kolor體
+        // Wypisanie wsp贸鲁rz锚dnych i kolor贸w
         cout << "c0: [" << static_cast<int>(c0[2]) << ", " << static_cast<int>(c0[1]) << ", " << static_cast<int>(c0[0]) << "]" << endl;
         cout << "c1: [" << static_cast<int>(c1[2]) << ", " << static_cast<int>(c1[1]) << ", " << static_cast<int>(c1[0]) << "]" << endl;
         cout << "c2: [" << static_cast<int>(c2[2]) << ", " << static_cast<int>(c2[1]) << ", " << static_cast<int>(c2[0]) << "]" << endl;
@@ -66,19 +66,19 @@ int main() {
         cout << "c4: [" << static_cast<int>(c4[2]) << ", " << static_cast<int>(c4[1]) << ", " << static_cast<int>(c4[0]) << "]" << endl;
         cout << "c5: [" << static_cast<int>(c5[2]) << ", " << static_cast<int>(c5[1]) << ", " << static_cast<int>(c5[0]) << "]" << endl;
         cout << "ready: " << ready << endl;
-        // Warunek sprawdzaj筩y kolory pikseli
+        // Warunek sprawdzaj鹿cy kolory pikseli
         if (c0[1] > 150 && c0[0] < 70 && c0[2] < 45 && c1[1] > 150 && c2[1] > 150 && c3[1] > 150 && c4[1] > 150 && c5[1] > 150 && ready == 0) {
-            cout << "Mamy to kurwa!!!!" << endl;
+            cout << "Mamy to !!!!" << endl;
             ready = 1;
         }
 
-        // Wy渨ietlanie napisu "Ready" i warto渃i zmiennej ready w prawym g髍nym rogu
+        // Wy艙wietlanie napisu "Ready" i warto艙ci zmiennej ready w prawym g贸rnym rogu
         stringstream ss;
         ss << "Ready: " << ready;
         putText(screenshot, ss.str(), Point(screen_width - 250, 30), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 255, 255), 2);
 
 
-        // Rysowanie punkt體 na obrazie
+        // Rysowanie punkt贸w na obrazie
         for (const auto& coord : coordinates) {
             circle(screenshot, coord, 1, Scalar(0, 0, 255), -1);  // Czerwone kropki
         }
@@ -87,16 +87,16 @@ int main() {
             circle(screenshot, coord, 1, Scalar(0, 0, 0), -1);  // Zielone kropki
         }
 
-        // Wy渨ietlanie obrazu
+        // Wy艙wietlanie obrazu
         imshow("Zrzut ekranu", screenshot);
 
-        // Oczekiwanie na naci渘i阠ie klawisza 'q' w celu wyj渃ia
+        // Oczekiwanie na naci艙ni锚cie klawisza 'q' w celu wyj艙cia
         if (waitKey(1) == 'q') {
             break;
         }
     }
 
-    // Zwalnianie zasob體
+    // Zwalnianie zasob贸w
     DeleteObject(hbwindow);
     DeleteDC(hwindowCompatibleDC);
     ReleaseDC(NULL, hwindowDC);
