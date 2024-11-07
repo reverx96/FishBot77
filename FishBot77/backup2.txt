@@ -13,10 +13,10 @@ Point tmpcoord;
 Vec3b tempcolor;
 
 void pressKey(WORD key) {
-    // Naciœniêcie klawisza
+    // NaciÅ“niÃªcie klawisza
     keybd_event(key, 0, 0, 0);
 
-    // Krótka przerwa, aby symulowaæ rzeczywiste naciœniêcie klawisza
+    // KrÃ³tka przerwa, aby symulowaÃ¦ rzeczywiste naciÅ“niÃªcie klawisza
     //Sleep(10);  // Odczekaj 50 milisekund
 
     // Zwolnienie klawisza
@@ -25,10 +25,10 @@ void pressKey(WORD key) {
 
 int main2() {
     Sleep(2000);
-    // Naciœniêcie klawisza
+    // NaciÅ“niÃªcie klawisza
     keybd_event(0x45, 0, 0, 0);
 
-    // Krótka przerwa, aby symulowaæ rzeczywiste naciœniêcie klawisza
+    // KrÃ³tka przerwa, aby symulowaÃ¦ rzeczywiste naciÅ“niÃªcie klawisza
     //Sleep(10);  // Odczekaj 50 milisekund
 
     // Zwolnienie klawisza
@@ -46,7 +46,7 @@ int main() {
     HBITMAP hbwindow = CreateCompatibleBitmap(hwindowDC, screen_width, screen_height);
     BITMAPINFOHEADER bi = { sizeof(BITMAPINFOHEADER), screen_width, -screen_height, 1, 32, BI_RGB, 0, 0, 0, 0, 0 };
 
-    // Wspó³rzêdne do rysowania i sprawdzania kolorów
+    // WspÃ³Â³rzÃªdne do rysowania i sprawdzania kolorÃ³w
     vector<Point> coordinates = {
         {1010, 533}, {1008, 546}, {1004, 560}, {997, 572}, {987, 582}, {975, 589},
         {962, 592}, {949, 591}, {936, 587}, {925, 578}, {913, 561}, {909, 547},
@@ -57,7 +57,7 @@ int main() {
     int cx = screen_width / 2;
     int cy = screen_height / 2;
 
-    // Wspó³rzêdne do sprawdzania kolorów
+    // WspÃ³Â³rzÃªdne do sprawdzania kolorÃ³w
     vector<Point> coords2 = {
         {cx, cy + 5},
         {cx + 1, cy + 5},
@@ -81,7 +81,7 @@ int main() {
         // Konwersja koloru z BGRA na BGR
         cvtColor(screenshot, screenshot, COLOR_BGRA2BGR);
 
-        // Pobieranie kolorów pikseli z coords2 i przypisanie ich do zmiennych c0, c1, c2, c3, c4, c5
+        // Pobieranie kolorÃ³w pikseli z coords2 i przypisanie ich do zmiennych c0, c1, c2, c3, c4, c5
         if (ready == 0){
             c0 = screenshot.at<Vec3b>(coords2[0]);
             c1 = screenshot.at<Vec3b>(coords2[1]);
@@ -92,13 +92,13 @@ int main() {
 
         }
 
-        // Warunek sprawdzaj¹cy kolory pikseli z coords2
+        // Warunek sprawdzajÂ¹cy kolory pikseli z coords2
         if (c0[1] > 150 && c0[0] < 70 && c0[2] < 75   && c1[1] > 150 && c2[1] > 150 && c3[1] > 150 && c4[1] > 150 && c5[1] > 150 && ready == 0) {
-            cout << "Mamy to kurwa!!!!" << endl;
+            cout << "Mamy to !!!!" << endl;
             ready = 1;
         }
 
-        // Szukanie pierwszego piksela spe³niaj¹cego warunki R > 200, G > 100, B < 50
+        // Szukanie pierwszego piksela speÂ³niajÂ¹cego warunki R > 200, G > 100, B < 50
         Point found_coord;
         bool found = false;
 
@@ -127,7 +127,7 @@ int main() {
             }
         }
 
-        // Jeœli znaleziono taki piksel, zaznacz go na obrazie
+        // JeÅ“li znaleziono taki piksel, zaznacz go na obrazie
     //    if (found) {
     //        circle(screenshot, found_coord, 5, Scalar(0, 255, 0), 2);  // Zaznaczenie na zielono
             putText(screenshot, "Found", Point(found_coord.x + 10, found_coord.y - 10), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0), 1);
@@ -137,10 +137,10 @@ int main() {
 
         //if ((int)foundcolor[2] > 150 && (int)foundcolor[1] > 150 && (int)foundcolor[0] > 150 && pointer > 0) { // R > 200, G > 200, B > 200
         if(foundcolor != tempcolor && pointer > 0 ){
-            cout << "KURWWWAAAA" << endl;
-            //putText(screenshot, "Przed Naciœniêciem", Point(cx, cy - 350), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
+            cout << "DONE" << endl;
+            //putText(screenshot, "Przed NaciÅ“niÃªciem", Point(cx, cy - 350), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
             pressKey(0x45);
-            //putText(screenshot, "Po Naciœniêciem", Point(cx, cy - 325), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
+            //putText(screenshot, "Po NaciÅ“niÃªciem", Point(cx, cy - 325), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
             pointer = 0;
             //Sleep(1);  // Odczekaj 50 milisekund
             count++;
@@ -159,9 +159,9 @@ int main() {
         putText(screenshot, "TMP Color: " + to_string(foundcolor[0]) + " , " + to_string(foundcolor[1]) + " , " + to_string(foundcolor[2]), Point(cx, cy - 400), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(foundcolor[0], foundcolor[1], foundcolor[2]), 1);
         putText(screenshot, "Found: " + to_string(found), Point(cx, cy - 375), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
 
-        // Wyœwietlanie wartoœci c0, c1, c2, c3, c4, c5 i "Ready" w prawym górnym rogu
+        // WyÅ“wietlanie wartoÅ“ci c0, c1, c2, c3, c4, c5 i "Ready" w prawym gÃ³rnym rogu
         int base_line = 20;
-        int text_spacing = 25;  // Zmniejszenie odstêpu, aby wiêcej tekstu siê zmieœci³o
+        int text_spacing = 25;  // Zmniejszenie odstÃªpu, aby wiÃªcej tekstu siÃª zmieÅ“ciÂ³o
         //putText(screenshot, "c0: [" + to_string(c0[2]) + ", " + to_string(c0[1]) + ", " + to_string(c0[0]) + "]", Point(screen_width - 600, base_line), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(c0[0], c0[1], c0[2]), 1);
         //putText(screenshot, "c1: [" + to_string(c1[2]) + ", " + to_string(c1[1]) + ", " + to_string(c1[0]) + "]", Point(screen_width - 600, base_line + text_spacing), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(c1[0], c1[1], c1[2]), 1);
         //putText(screenshot, "c2: [" + to_string(c2[2]) + ", " + to_string(c2[1]) + ", " + to_string(c2[0]) + "]", Point(screen_width - 600, base_line + text_spacing * 2), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(c2[0], c2[1], c2[2]), 1);
@@ -173,7 +173,7 @@ int main() {
         ss_ready << "Ready: " << ready;
         putText(screenshot, ss_ready.str(), Point(screen_width - 600, base_line + text_spacing * 6), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 1);
 
-        // Pobieranie i wyœwietlanie kolorów pikseli z coordinates
+        // Pobieranie i wyÅ“wietlanie kolorÃ³w pikseli z coordinates
         int index = 0;
         /*for (const auto& coord : coordinates) {
             Vec3b color = screenshot.at<Vec3b>(coord);
@@ -181,7 +181,7 @@ int main() {
             ss << "coord[" << index << "]: [" << static_cast<int>(color[2]) << ", " << static_cast<int>(color[1]) << ", " << static_cast<int>(color[0]) << "]";
             putText(screenshot, ss.str(), Point(screen_width - 600, base_line + text_spacing * (7 + index)), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(color[0], color[1], color[2]), 1);
 
-            // Numeracja punktów po zewnêtrznej stronie kropek
+            // Numeracja punktÃ³w po zewnÃªtrznej stronie kropek
             //int offset_x = (coord.x > cx) ? 10 : -25;
             //int offset_y = (coord.y > cy) ? 10 : -10;
             //putText(screenshot, to_string(index), Point(coord.x + offset_x, coord.y + offset_y), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 0, 0), 1);
@@ -189,7 +189,7 @@ int main() {
             index++;
         }*/
 
-        // Rysowanie punktów na obrazie
+        // Rysowanie punktÃ³w na obrazie
         for (const auto& coord : coordinates) {
             circle(screenshot, coord, 1, Scalar(0, 0, 255), -1);  // Czerwone kropki
         }
@@ -198,15 +198,15 @@ int main() {
             circle(screenshot, coord, 1, Scalar(0, 0, 0), -1);  // Zielone kropki
         }
 
-        // Wyœwietlanie obrazu
+        // WyÅ“wietlanie obrazu
         imshow("Zrzut ekranu", screenshot);
 
-        // Oczekiwanie na naciœniêcie klawisza 'q' w celu wyjœcia
+        // Oczekiwanie na naciÅ“niÃªcie klawisza 'q' w celu wyjÅ“cia
         if (waitKey(1) == 'q') {
             break;
         }
 
-        // Resetowanie zmiennej ready przy naciœniêciu 's'
+        // Resetowanie zmiennej ready przy naciÅ“niÃªciu 's'
         if (waitKey(1) == 's') {
             ready = 0;
             pointer = 0;
@@ -214,7 +214,7 @@ int main() {
         }
     }
 
-    // Zwalnianie zasobów
+    // Zwalnianie zasobÃ³w
     DeleteObject(hbwindow);
     DeleteDC(hwindowCompatibleDC);
     ReleaseDC(NULL, hwindowDC);
